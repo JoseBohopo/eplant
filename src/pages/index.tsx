@@ -1,14 +1,48 @@
-import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "@next/font/google";
 import styles from "@/styles/Home.module.css";
+import { auth } from "./../../firebase/firebase";
+import { useContext, useEffect, useState, createContext } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 
-export default function Home() {
+interface UserType {
+  email: string | null;
+  uid: string | null;
+}
+
+const AuthContext = createContext({});
+
+export const useAuth = () => useContext(AuthContext);
+
+export default function AuthContextProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [user, setUser] = useState<UserType>({ email: null, uid: null });
+  const [loading, setloading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser({
+          email: user.email,
+          uid: user.uid,
+        });
+      } else {
+        setUser({
+          email: null,
+          uid: null,
+        });
+      }
+    });
+
+    setloading(false);
+
+    return () => unsubscribe();
+  }, []);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.container}>
-        <div className={styles.hello}>Hello</div>
-      </div>
-    </main>
+    <AuthContext.Provider value={{ user }}>
+      {loading ? null : children}
+    </AuthContext.Provider>
   );
 }
