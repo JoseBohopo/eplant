@@ -1,7 +1,6 @@
-import styles from "@/styles/Home.module.css";
-import { auth } from "./../../firebase/firebase";
 import { useContext, useEffect, useState, createContext } from "react";
 import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "config/firebase";
 
 interface UserType {
   email: string | null;
